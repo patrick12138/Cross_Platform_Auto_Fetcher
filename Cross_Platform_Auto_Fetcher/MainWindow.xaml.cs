@@ -1,3 +1,4 @@
+using Cross_Platform_Auto_Fetcher.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -34,6 +35,14 @@ namespace Cross_Platform_Auto_Fetcher
             {
                 { "TOP500榜", "8888" },
                 { "飙升榜", "6666" }
+            });
+
+            // 初始化网易云音乐榜单
+            _platformCharts.Add("网易云音乐", new Dictionary<string, string>
+            {
+                { "热歌榜", "3778678" },
+                { "新歌榜", "3779629" },
+                { "飙升榜", "19723756" }
             });
 
             // 填充平台选择框
@@ -73,6 +82,9 @@ namespace Cross_Platform_Auto_Fetcher
                     break;
                 case "酷狗音乐":
                     _musicService = new KugouMusicService();
+                    break;
+                case "网易云音乐":
+                    _musicService = new NeteaseMusicService();
                     break;
                 default:
                     StatusTextBlock.Text = "暂不支持该平台";
@@ -125,6 +137,9 @@ namespace Cross_Platform_Auto_Fetcher
                             break;
                         case "酷狗音乐":
                             service = new KugouMusicService();
+                            break;
+                        case "网易云音乐":
+                            service = new NeteaseMusicService();
                             break;
                     }
 
