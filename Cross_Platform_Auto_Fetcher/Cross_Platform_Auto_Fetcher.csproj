@@ -6,6 +6,21 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+
+    <!-- 应用程序信息 -->
+    <AssemblyName>Cross_Platform_Auto_Fetcher</AssemblyName>
+    <Product>跨平台音乐榜单抓取工具</Product>
+    <Company>Your Name</Company>
+    <Version>1.0.0</Version>
+    <Description>支持QQ音乐、酷狗音乐、网易云音乐的榜单数据抓取工具</Description>
+
+    <!-- 发布配置 -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
   </PropertyGroup>
 
 </Project>

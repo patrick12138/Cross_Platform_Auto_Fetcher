@@ -10,7 +10,6 @@ namespace Cross_Platform_Auto_Fetcher
 {
     public partial class MainWindow : Window
     {
-        // 存储平台及其对应的榜单信息 <PlatformName, <ChartName, ChartId>>
         private readonly Dictionary<string, Dictionary<string, string>> _platformCharts = new Dictionary<string, Dictionary<string, string>>();
         private IMusicDataService _musicService;
 
@@ -22,7 +21,6 @@ namespace Cross_Platform_Auto_Fetcher
 
         private void InitializeData()
         {
-            // 初始化QQ音乐榜单
             _platformCharts.Add("QQ音乐", new Dictionary<string, string>
             {
                 { "热歌榜", "26" },
@@ -30,14 +28,12 @@ namespace Cross_Platform_Auto_Fetcher
                 { "飙升榜", "62" }
             });
 
-            // 初始化酷狗音乐榜单
             _platformCharts.Add("酷狗音乐", new Dictionary<string, string>
             {
                 { "TOP500榜", "8888" },
                 { "飙升榜", "6666" }
             });
 
-            // 初始化网易云音乐榜单
             _platformCharts.Add("网易云音乐", new Dictionary<string, string>
             {
                 { "热歌榜", "3778678" },
@@ -45,7 +41,6 @@ namespace Cross_Platform_Auto_Fetcher
                 { "飙升榜", "19723756" }
             });
 
-            // 填充平台选择框
             PlatformComboBox.ItemsSource = _platformCharts.Keys;
             PlatformComboBox.SelectedIndex = 0;
         }
@@ -66,7 +61,7 @@ namespace Cross_Platform_Auto_Fetcher
         {
             if (PlatformComboBox.SelectedItem == null || ChartComboBox.SelectedItem == null)
             {
-                StatusTextBlock.Text = "请先选择平台和榜单";
+                StatusTextBlock.Text = "❌ 请先选择平台和榜单";
                 return;
             }
 
@@ -74,53 +69,40 @@ namespace Cross_Platform_Auto_Fetcher
             var selectedChart = ChartComboBox.SelectedItem.ToString();
             var chartId = _platformCharts[selectedPlatform][selectedChart];
 
-            // 根据选择实例化对应的服务
-            switch (selectedPlatform)
+            _musicService = selectedPlatform switch
             {
-                case "QQ音乐":
-                    _musicService = new QQMusicService();
-                    break;
-                case "酷狗音乐":
-                    _musicService = new KugouMusicService();
-                    break;
-                case "网易云音乐":
-                    _musicService = new NeteaseMusicService();
-                    break;
-                default:
-                    StatusTextBlock.Text = "暂不支持该平台";
-                    return;
+                "QQ音乐" => new QQMusicService(),
+                "酷狗音乐" => new KugouMusicService(),
+                "网易云音乐" => new NeteaseMusicService(),
+                _ => null
+            };
+
+            if (_musicService == null)
+            {
+                StatusTextBlock.Text = "❌ 暂不支持该平台";
+                return;
             }
 
-            FetchButton.IsEnabled = false;
-            ExportButton.IsEnabled = false;
-            ExportAllButton.IsEnabled = false;
-            StatusTextBlock.Text = $"正在抓取 {selectedPlatform} - {selectedChart}..." ;
+            SetButtonsEnabled(false);
+            StatusTextBlock.Text = $"🔄 正在抓取 {selectedPlatform} - {selectedChart}...";
             SongsDataGrid.ItemsSource = null;
 
             try
             {
-                // 使用带重试机制的方法，特别是针对网易云音乐
                 var songs = await _musicService.GetTopListWithRetryAsync(chartId, 100, maxRetries: 3, retryDelayMs: 2000);
                 SongsDataGrid.ItemsSource = songs;
 
-                if (songs.Count > 0)
-                {
-                    StatusTextBlock.Text = $"抓取完成！共获取 {songs.Count} 首歌曲。";
-                }
-                else
-                {
-                    StatusTextBlock.Text = $"抓取失败或无数据，已重试3次。请查看日志文件了解详情。";
-                }
+                StatusTextBlock.Text = songs.Count > 0
+                    ? $"✅ 抓取完成!共获取 {songs.Count} 首歌曲"
+                    : "⚠️ 未获取到数据,请稍后重试";
             }
             catch (Exception ex)
             {
-                StatusTextBlock.Text = $"发生错误: {ex.Message}" ;
+                StatusTextBlock.Text = $"❌ 发生错误: {ex.Message}";
             }
             finally
             {
-                FetchButton.IsEnabled = true;
-                ExportButton.IsEnabled = true;
-                ExportAllButton.IsEnabled = true;
+                SetButtonsEnabled(true);
             }
         }
 
@@ -128,58 +110,46 @@ namespace Cross_Platform_Auto_Fetcher
         {
             if (PlatformComboBox.SelectedItem == null)
             {
-                StatusTextBlock.Text = "请先选择平台";
+                StatusTextBlock.Text = "❌ 请先选择平台";
                 return;
             }
 
             var selectedPlatform = PlatformComboBox.SelectedItem.ToString();
+            var service = CreateMusicService(selectedPlatform);
 
-            FetchButton.IsEnabled = false;
-            ExportButton.IsEnabled = false;
-            ExportAllButton.IsEnabled = false;
+            if (service == null)
+            {
+                StatusTextBlock.Text = "❌ 暂不支持该平台";
+                return;
+            }
+
+            SetButtonsEnabled(false);
 
             var exportBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Exports");
             var timestampFolder = Path.Combine(exportBasePath, DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
             Directory.CreateDirectory(timestampFolder);
 
-            StatusTextBlock.Text = $"开始导出 {selectedPlatform} 的所有榜单...";
+            StatusTextBlock.Text = $"🔄 开始导出 {selectedPlatform} 的所有榜单...";
 
             try
             {
-                IMusicDataService service = null;
-                switch (selectedPlatform)
-                {
-                    case "QQ音乐":
-                        service = new QQMusicService();
-                        break;
-                    case "酷狗音乐":
-                        service = new KugouMusicService();
-                        break;
-                    case "网易云音乐":
-                        service = new NeteaseMusicService();
-                        break;
-                }
-
-                if (service == null)
-                {
-                    StatusTextBlock.Text = "暂不支持该平台";
-                    return;
-                }
-
                 var charts = _platformCharts[selectedPlatform];
+                int successCount = 0;
+                int totalCount = charts.Count;
+
                 foreach (var chartEntry in charts)
                 {
                     var chartName = chartEntry.Key;
                     var chartId = chartEntry.Value;
 
-                    StatusTextBlock.Text = $"正在导出: {selectedPlatform} - {chartName}...";
+                    StatusTextBlock.Text = $"🔄 正在导出 ({successCount + 1}/{totalCount}): {selectedPlatform} - {chartName}...";
 
-                    // 使用带重试机制的方法
                     var songs = await service.GetTopListWithRetryAsync(chartId, 100);
 
                     if (songs.Count == 0)
                     {
-                        StatusTextBlock.Text = $"警告: {selectedPlatform} - {chartName} 未获取到数据，跳过...";
+                        StatusTextBlock.Text = $"⚠️ {selectedPlatform} - {chartName} 未获取到数据,跳过...";
+                        await Task.Delay(500);
                         continue;
                     }
 
@@ -187,52 +157,45 @@ namespace Cross_Platform_Auto_Fetcher
                     var fileName = $"{selectedPlatform}_{chartName}.csv";
                     var filePath = Path.Combine(timestampFolder, fileName);
                     await File.WriteAllTextAsync(filePath, csvContent, Encoding.UTF8);
+                    successCount++;
                 }
 
-                StatusTextBlock.Text = $"{selectedPlatform} 导出完成！文件已保存至 {timestampFolder}";
+                StatusTextBlock.Text = $"✅ {selectedPlatform} 导出完成!成功导出 {successCount}/{totalCount} 个榜单\n📁 {timestampFolder}";
             }
             catch (Exception ex)
             {
-                StatusTextBlock.Text = $"导出过程中发生错误: {ex.Message}";
+                StatusTextBlock.Text = $"❌ 导出过程中发生错误: {ex.Message}";
             }
             finally
             {
-                FetchButton.IsEnabled = true;
-                ExportButton.IsEnabled = true;
-                ExportAllButton.IsEnabled = true;
+                SetButtonsEnabled(true);
             }
         }
 
         private async void ExportAllButton_Click(object sender, RoutedEventArgs e)
         {
-            FetchButton.IsEnabled = false;
-            ExportButton.IsEnabled = false;
-            ExportAllButton.IsEnabled = false;
+            SetButtonsEnabled(false);
 
             var exportBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Exports");
             var timestampFolder = Path.Combine(exportBasePath, DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
             Directory.CreateDirectory(timestampFolder);
 
-            StatusTextBlock.Text = "开始导出所有榜单...";
+            StatusTextBlock.Text = "🔄 开始导出所有平台的所有榜单...";
 
             try
             {
+                int totalSuccess = 0;
+                int totalCharts = 0;
+
+                foreach (var platformEntry in _platformCharts)
+                {
+                    totalCharts += platformEntry.Value.Count;
+                }
+
                 foreach (var platformEntry in _platformCharts)
                 {
                     var platformName = platformEntry.Key;
-                    IMusicDataService service = null;
-                    switch (platformName)
-                    {
-                        case "QQ音乐":
-                            service = new QQMusicService();
-                            break;
-                        case "酷狗音乐":
-                            service = new KugouMusicService();
-                            break;
-                        case "网易云音乐":
-                            service = new NeteaseMusicService();
-                            break;
-                    }
+                    var service = CreateMusicService(platformName);
 
                     if (service == null) continue;
 
@@ -241,35 +204,34 @@ namespace Cross_Platform_Auto_Fetcher
                         var chartName = chartEntry.Key;
                         var chartId = chartEntry.Value;
 
-                        StatusTextBlock.Text = $"正在导出: {platformName} - {chartName}..." ;
+                        StatusTextBlock.Text = $"🔄 正在导出 ({totalSuccess + 1}/{totalCharts}): {platformName} - {chartName}...";
 
-                        // 使用带重试机制的方法
                         var songs = await service.GetTopListWithRetryAsync(chartId, 100);
 
                         if (songs.Count == 0)
                         {
-                            StatusTextBlock.Text = $"警告: {platformName} - {chartName} 未获取到数据，跳过...";
+                            StatusTextBlock.Text = $"⚠️ {platformName} - {chartName} 未获取到数据,跳过...";
+                            await Task.Delay(500);
                             continue;
                         }
 
                         var csvContent = GenerateCsvContent(songs);
-                        var fileName = $"{platformName}_{chartName}.csv" ;
+                        var fileName = $"{platformName}_{chartName}.csv";
                         var filePath = Path.Combine(timestampFolder, fileName);
                         await File.WriteAllTextAsync(filePath, csvContent, Encoding.UTF8);
+                        totalSuccess++;
                     }
                 }
 
-                StatusTextBlock.Text = $"全部导出完成！文件已保存至 {timestampFolder}" ;
+                StatusTextBlock.Text = $"✅ 全部导出完成!成功导出 {totalSuccess}/{totalCharts} 个榜单\n📁 {timestampFolder}";
             }
             catch (Exception ex)
             {
-                StatusTextBlock.Text = $"导出过程中发生错误: {ex.Message}" ;
+                StatusTextBlock.Text = $"❌ 导出过程中发生错误: {ex.Message}";
             }
             finally
             {
-                FetchButton.IsEnabled = true;
-                ExportButton.IsEnabled = true;
-                ExportAllButton.IsEnabled = true;
+                SetButtonsEnabled(true);
             }
         }
 
@@ -291,10 +253,27 @@ namespace Cross_Platform_Auto_Fetcher
             if (string.IsNullOrEmpty(text)) return "";
             if (text.Contains(",") || text.Contains("\"") || text.Contains("\n"))
             {
-                // Use simple concatenation to avoid complex interpolation issues
                 return "\"" + text.Replace("\"", "\"\"") + "\"";
             }
             return text;
+        }
+
+        private IMusicDataService CreateMusicService(string platformName)
+        {
+            return platformName switch
+            {
+                "QQ音乐" => new QQMusicService(),
+                "酷狗音乐" => new KugouMusicService(),
+                "网易云音乐" => new NeteaseMusicService(),
+                _ => null
+            };
+        }
+
+        private void SetButtonsEnabled(bool enabled)
+        {
+            FetchButton.IsEnabled = enabled;
+            ExportButton.IsEnabled = enabled;
+            ExportAllButton.IsEnabled = enabled;
         }
     }
 }

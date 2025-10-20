@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:Cross_Platform_Auto_Fetcher"
         mc:Ignorable="d"
         Title="跨平台音乐榜单抓取工具"
-        Height="600" Width="800">
+        Height="600" Width="850">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -24,10 +24,10 @@
 
             <Button x:Name="FetchButton" Content="抓取数据" Width="100" Margin="20,0,0,0" Click="FetchButton_Click"/>
             <Button x:Name="ExportButton" Content="导出" Width="80" Margin="10,0,0,0" Click="ExportButton_Click"/>
-            <Button x:Name="ExportAllButton" Content="一键导出所有榜单" Width="140" Margin="10,0,0,0" Click="ExportAllButton_Click"/>
+            <Button x:Name="ExportAllButton" Content="一键导出所有平台的榜单" Width="140" Margin="10,0,0,0" Click="ExportAllButton_Click"/>
         </StackPanel>
 
-        <DataGrid x:Name="SongsDataGrid" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="True">
+        <DataGrid x:Name="SongsDataGrid" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,35,0,5" Grid.RowSpan="3">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="排名" Binding="{Binding Rank}" Width="60"/>
                 <DataGridTextColumn Header="歌名" Binding="{Binding Title}" Width="*"/>
@@ -35,8 +35,6 @@
                 <DataGridTextColumn Header="专辑" Binding="{Binding Album}" Width="200"/>
             </DataGrid.Columns>
         </DataGrid>
-
-        <TextBox x:Name="LogTextBox" Grid.Row="2" Margin="0,5,0,0" IsReadOnly="True" VerticalScrollBarVisibility="Auto" FontFamily="Consolas"/>
 
         <StatusBar Grid.Row="3">
             <StatusBarItem>
