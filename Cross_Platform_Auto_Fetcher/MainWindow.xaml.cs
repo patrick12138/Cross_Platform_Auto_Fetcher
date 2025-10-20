@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -78,23 +80,105 @@ namespace Cross_Platform_Auto_Fetcher
             }
 
             FetchButton.IsEnabled = false;
-            StatusTextBlock.Text = $"正在抓取 {selectedPlatform} - {selectedChart}...";
+            ExportAllButton.IsEnabled = false;
+            StatusTextBlock.Text = $"正在抓取 {selectedPlatform} - {selectedChart}..." ;
             SongsDataGrid.ItemsSource = null;
 
             try
             {
                 var songs = await _musicService.GetTopListAsync(chartId, 100); // MVP: Limit to 100
                 SongsDataGrid.ItemsSource = songs;
-                StatusTextBlock.Text = $"抓取完成！共获取 {songs.Count} 首歌曲。";
+                StatusTextBlock.Text = $"抓取完成！共获取 {songs.Count} 首歌曲。" ;
             }
             catch (Exception ex)
             {
-                StatusTextBlock.Text = $"发生错误: {ex.Message}";
+                StatusTextBlock.Text = $"发生错误: {ex.Message}" ;
             }
             finally
             {
                 FetchButton.IsEnabled = true;
+                ExportAllButton.IsEnabled = true;
             }
+        }
+
+        private async void ExportAllButton_Click(object sender, RoutedEventArgs e)
+        {
+            FetchButton.IsEnabled = false;
+            ExportAllButton.IsEnabled = false;
+
+            var exportBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Exports");
+            var timestampFolder = Path.Combine(exportBasePath, DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
+            Directory.CreateDirectory(timestampFolder);
+
+            StatusTextBlock.Text = "开始导出所有榜单...";
+
+            try
+            {
+                foreach (var platformEntry in _platformCharts)
+                {
+                    var platformName = platformEntry.Key;
+                    IMusicDataService service = null;
+                    switch (platformName)
+                    {
+                        case "QQ音乐":
+                            service = new QQMusicService();
+                            break;
+                        case "酷狗音乐":
+                            service = new KugouMusicService();
+                            break;
+                    }
+
+                    if (service == null) continue;
+
+                    foreach (var chartEntry in platformEntry.Value)
+                    {
+                        var chartName = chartEntry.Key;
+                        var chartId = chartEntry.Value;
+
+                        StatusTextBlock.Text = $"正在导出: {platformName} - {chartName}..." ;
+                        var songs = await service.GetTopListAsync(chartId, 100);
+                        var csvContent = GenerateCsvContent(songs);
+                        var fileName = $"{platformName}_{chartName}.csv" ;
+                        var filePath = Path.Combine(timestampFolder, fileName);
+                        await File.WriteAllTextAsync(filePath, csvContent, Encoding.UTF8);
+                    }
+                }
+
+                StatusTextBlock.Text = $"全部导出完成！文件已保存至 {timestampFolder}" ;
+            }
+            catch (Exception ex)
+            {
+                StatusTextBlock.Text = $"导出过程中发生错误: {ex.Message}" ;
+            }
+            finally
+            {
+                FetchButton.IsEnabled = true;
+                ExportAllButton.IsEnabled = true;
+            }
+        }
+
+        private string GenerateCsvContent(List<Song> songs)
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine("排名,歌名,歌手,专辑");
+
+            foreach (var song in songs)
+            {
+                sb.AppendLine($"{song.Rank},{SanitizeForCsv(song.Title)},{SanitizeForCsv(song.Artist)},{SanitizeForCsv(song.Album)}");
+            }
+
+            return sb.ToString();
+        }
+
+        private string SanitizeForCsv(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return "";
+            if (text.Contains(",") || text.Contains("\"") || text.Contains("\n"))
+            {
+                // Use simple concatenation to avoid complex interpolation issues
+                return "\"" + text.Replace("\"", "\"\"") + "\"";
+            }
+            return text;
         }
     }
 }

@@ -22,6 +22,7 @@
             <ComboBox x:Name="ChartComboBox" Width="150" Margin="5,0"/>
 
             <Button x:Name="FetchButton" Content="抓取数据" Width="100" Margin="20,0,0,0" Click="FetchButton_Click"/>
+            <Button x:Name="ExportAllButton" Content="一键导出所有榜单" Width="140" Margin="10,0,0,0" Click="ExportAllButton_Click"/>
         </StackPanel>
 
         <DataGrid x:Name="SongsDataGrid" Grid.Row="1" AutoGenerateColumns="False" IsReadOnly="True">
