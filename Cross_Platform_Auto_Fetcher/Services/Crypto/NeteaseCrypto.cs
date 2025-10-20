@@ -60,20 +60,28 @@ namespace Cross_Platform_Auto_Fetcher.Services.Crypto
         private static string RsaEncrypt(string text, string pubKey, string modulus)
         {
             // This implementation now mirrors the Python script's logic exactly.
+            // Python: text = text[::-1]  => reverse
+            // Python: rs = int(text.hex(), 16) ** int(pub_key, 16) % int(modulus, 16)
+
             // 1. Reverse the secret key string.
             var reversedText = new string(text.Reverse().ToArray());
+
             // 2. Get its bytes.
             var textBytes = Encoding.UTF8.GetBytes(reversedText);
-            // 3. Convert the bytes to a hex string.
-            var hexText = Convert.ToHexString(textBytes);
+
+            // 3. Convert the bytes to a hex string (lowercase to match Python's .hex())
+            var hexText = Convert.ToHexString(textBytes).ToLower();
+
             // 4. Parse the hex string into a BigInteger.
             var biText = BigInteger.Parse("0" + hexText, NumberStyles.HexNumber);
 
             var biPubKey = BigInteger.Parse(pubKey, NumberStyles.HexNumber);
             var biModulus = BigInteger.Parse(modulus, NumberStyles.HexNumber);
 
+            // 5. Perform modular exponentiation
             var biResult = BigInteger.ModPow(biText, biPubKey, biModulus);
 
+            // 6. Return as lowercase hex string, padded to 256 characters
             return biResult.ToString("x").PadLeft(256, '0');
         }
     }
