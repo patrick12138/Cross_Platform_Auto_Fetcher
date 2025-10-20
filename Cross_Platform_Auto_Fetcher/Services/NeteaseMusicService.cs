@@ -13,14 +13,24 @@ namespace Cross_Platform_Auto_Fetcher.Services
     {
         private static readonly HttpClient _httpClient = new HttpClient();
         private const string PlaylistApiUrl = "https://music.163.com/weapi/v3/playlist/detail";
-        private const string SongDetailApiUrl = "https://music.163.com/weapi/v6/song/detail"; // v6 is often used for batch details
+        private const string SongDetailApiUrl = "https://music.163.com/weapi/v6/song/detail";
+
+        public NeteaseMusicService()
+        {
+            // Add required headers to avoid being blocked
+            if (_httpClient.DefaultRequestHeaders.UserAgent.Count == 0)
+            {
+                _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+                _httpClient.DefaultRequestHeaders.Add("Referer", "https://music.163.com/");
+            }
+        }
 
         public async Task<List<Song>> GetTopListAsync(string topId, int limit = 100)
         {
             try
             {
                 // Step 1: Get track IDs from the playlist
-                var playlistPayload = new { id = topId, n = 1000, s = 8 }; // Fetch more to have enough data
+                var playlistPayload = new { id = topId, offset = 0, total = true, limit = 1000, n = 1000, csrf_token = "" };
                 var encryptedPlaylistParams = NeteaseCrypto.Weapi(playlistPayload);
                 var requestContent = new FormUrlEncodedContent(encryptedPlaylistParams);
 

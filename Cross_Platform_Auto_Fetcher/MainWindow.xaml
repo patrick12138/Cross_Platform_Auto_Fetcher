@@ -11,6 +11,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="150"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
@@ -34,7 +35,9 @@
             </DataGrid.Columns>
         </DataGrid>
 
-        <StatusBar Grid.Row="2">
+        <TextBox x:Name="LogTextBox" Grid.Row="2" Margin="0,5,0,0" IsReadOnly="True" VerticalScrollBarVisibility="Auto" FontFamily="Consolas"/>
+
+        <StatusBar Grid.Row="3">
             <StatusBarItem>
                 <TextBlock x:Name="StatusTextBlock" Text="准备就绪"/>
             </StatusBarItem>
