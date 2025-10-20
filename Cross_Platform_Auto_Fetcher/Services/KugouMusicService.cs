@@ -5,15 +5,16 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Cross_Platform_Auto_Fetcher.Services;
 
 namespace Cross_Platform_Auto_Fetcher
 {
-    public class KugouMusicService : IMusicDataService
+    public class KugouMusicService : MusicServiceBase
     {
         private static readonly HttpClient _httpClient = new HttpClient();
         private static readonly Regex _jsonRegex = new Regex(@"global.features\s*=\s*(\[.*\]);", RegexOptions.Singleline);
 
-        public async Task<List<Song>> GetTopListAsync(string topId, int limit = 100)
+        public override async Task<List<Song>> GetTopListAsync(string topId, int limit = 100)
         {
             var url = $"https://www.kugou.com/yy/rank/home/1-{topId}.html";
 

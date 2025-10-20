@@ -5,14 +5,15 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Web;
+using Cross_Platform_Auto_Fetcher.Services;
 
 namespace Cross_Platform_Auto_Fetcher
 {
-    public class QQMusicService : IMusicDataService
+    public class QQMusicService : MusicServiceBase
     {
         private static readonly HttpClient _httpClient = new HttpClient();
 
-        public async Task<List<Song>> GetTopListAsync(string topId, int limit = 100)
+        public override async Task<List<Song>> GetTopListAsync(string topId, int limit = 100)
         {
             if (!int.TryParse(topId, out int topIdInt))
             {

@@ -17,6 +17,7 @@ namespace Cross_Platform_Auto_Fetcher
         public MainWindow()
         {
             InitializeComponent();
+            InitializeData();
         }
 
         private void InitializeData()
@@ -91,15 +92,25 @@ namespace Cross_Platform_Auto_Fetcher
             }
 
             FetchButton.IsEnabled = false;
+            ExportButton.IsEnabled = false;
             ExportAllButton.IsEnabled = false;
             StatusTextBlock.Text = $"正在抓取 {selectedPlatform} - {selectedChart}..." ;
             SongsDataGrid.ItemsSource = null;
 
             try
             {
-                var songs = await _musicService.GetTopListAsync(chartId, 100); // MVP: Limit to 100
+                // 使用带重试机制的方法，特别是针对网易云音乐
+                var songs = await _musicService.GetTopListWithRetryAsync(chartId, 100, maxRetries: 3, retryDelayMs: 2000);
                 SongsDataGrid.ItemsSource = songs;
-                StatusTextBlock.Text = $"抓取完成！共获取 {songs.Count} 首歌曲。" ;
+
+                if (songs.Count > 0)
+                {
+                    StatusTextBlock.Text = $"抓取完成！共获取 {songs.Count} 首歌曲。";
+                }
+                else
+                {
+                    StatusTextBlock.Text = $"抓取失败或无数据，已重试3次。请查看日志文件了解详情。";
+                }
             }
             catch (Exception ex)
             {
@@ -108,6 +119,86 @@ namespace Cross_Platform_Auto_Fetcher
             finally
             {
                 FetchButton.IsEnabled = true;
+                ExportButton.IsEnabled = true;
+                ExportAllButton.IsEnabled = true;
+            }
+        }
+
+        private async void ExportButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (PlatformComboBox.SelectedItem == null)
+            {
+                StatusTextBlock.Text = "请先选择平台";
+                return;
+            }
+
+            var selectedPlatform = PlatformComboBox.SelectedItem.ToString();
+
+            FetchButton.IsEnabled = false;
+            ExportButton.IsEnabled = false;
+            ExportAllButton.IsEnabled = false;
+
+            var exportBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Exports");
+            var timestampFolder = Path.Combine(exportBasePath, DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
+            Directory.CreateDirectory(timestampFolder);
+
+            StatusTextBlock.Text = $"开始导出 {selectedPlatform} 的所有榜单...";
+
+            try
+            {
+                IMusicDataService service = null;
+                switch (selectedPlatform)
+                {
+                    case "QQ音乐":
+                        service = new QQMusicService();
+                        break;
+                    case "酷狗音乐":
+                        service = new KugouMusicService();
+                        break;
+                    case "网易云音乐":
+                        service = new NeteaseMusicService();
+                        break;
+                }
+
+                if (service == null)
+                {
+                    StatusTextBlock.Text = "暂不支持该平台";
+                    return;
+                }
+
+                var charts = _platformCharts[selectedPlatform];
+                foreach (var chartEntry in charts)
+                {
+                    var chartName = chartEntry.Key;
+                    var chartId = chartEntry.Value;
+
+                    StatusTextBlock.Text = $"正在导出: {selectedPlatform} - {chartName}...";
+
+                    // 使用带重试机制的方法
+                    var songs = await service.GetTopListWithRetryAsync(chartId, 100);
+
+                    if (songs.Count == 0)
+                    {
+                        StatusTextBlock.Text = $"警告: {selectedPlatform} - {chartName} 未获取到数据，跳过...";
+                        continue;
+                    }
+
+                    var csvContent = GenerateCsvContent(songs);
+                    var fileName = $"{selectedPlatform}_{chartName}.csv";
+                    var filePath = Path.Combine(timestampFolder, fileName);
+                    await File.WriteAllTextAsync(filePath, csvContent, Encoding.UTF8);
+                }
+
+                StatusTextBlock.Text = $"{selectedPlatform} 导出完成！文件已保存至 {timestampFolder}";
+            }
+            catch (Exception ex)
+            {
+                StatusTextBlock.Text = $"导出过程中发生错误: {ex.Message}";
+            }
+            finally
+            {
+                FetchButton.IsEnabled = true;
+                ExportButton.IsEnabled = true;
                 ExportAllButton.IsEnabled = true;
             }
         }
@@ -115,6 +206,7 @@ namespace Cross_Platform_Auto_Fetcher
         private async void ExportAllButton_Click(object sender, RoutedEventArgs e)
         {
             FetchButton.IsEnabled = false;
+            ExportButton.IsEnabled = false;
             ExportAllButton.IsEnabled = false;
 
             var exportBasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Exports");
@@ -150,7 +242,16 @@ namespace Cross_Platform_Auto_Fetcher
                         var chartId = chartEntry.Value;
 
                         StatusTextBlock.Text = $"正在导出: {platformName} - {chartName}..." ;
-                        var songs = await service.GetTopListAsync(chartId, 100);
+
+                        // 使用带重试机制的方法
+                        var songs = await service.GetTopListWithRetryAsync(chartId, 100);
+
+                        if (songs.Count == 0)
+                        {
+                            StatusTextBlock.Text = $"警告: {platformName} - {chartName} 未获取到数据，跳过...";
+                            continue;
+                        }
+
                         var csvContent = GenerateCsvContent(songs);
                         var fileName = $"{platformName}_{chartName}.csv" ;
                         var filePath = Path.Combine(timestampFolder, fileName);
@@ -167,6 +268,7 @@ namespace Cross_Platform_Auto_Fetcher
             finally
             {
                 FetchButton.IsEnabled = true;
+                ExportButton.IsEnabled = true;
                 ExportAllButton.IsEnabled = true;
             }
         }
