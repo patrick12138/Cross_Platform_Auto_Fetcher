@@ -5,6 +5,8 @@
 *.userosscache
 *.sln.docstates
 .spec-workflow
+.claude
+Release_Package
 # Build results
 [Dd]ebug/
 [Rr]elease/

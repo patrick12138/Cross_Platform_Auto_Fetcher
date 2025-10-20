@@ -21,6 +21,13 @@ namespace Cross_Platform_Auto_Fetcher
 
         private void InitializeData()
         {
+            _platformCharts.Add("网易云音乐", new Dictionary<string, string>
+            {
+                { "热歌榜", "3778678" },
+                { "新歌榜", "3779629" },
+                { "飙升榜", "19723756" }
+            });
+
             _platformCharts.Add("QQ音乐", new Dictionary<string, string>
             {
                 { "热歌榜", "26" },
@@ -32,13 +39,6 @@ namespace Cross_Platform_Auto_Fetcher
             {
                 { "TOP500榜", "8888" },
                 { "飙升榜", "6666" }
-            });
-
-            _platformCharts.Add("网易云音乐", new Dictionary<string, string>
-            {
-                { "热歌榜", "3778678" },
-                { "新歌榜", "3779629" },
-                { "飙升榜", "19723756" }
             });
 
             PlatformComboBox.ItemsSource = _platformCharts.Keys;
@@ -90,14 +90,41 @@ namespace Cross_Platform_Auto_Fetcher
             try
             {
                 var songs = await _musicService.GetTopListWithRetryAsync(chartId, 100, maxRetries: 3, retryDelayMs: 2000);
-                SongsDataGrid.ItemsSource = songs;
 
-                StatusTextBlock.Text = songs.Count > 0
-                    ? $"✅ 抓取完成!共获取 {songs.Count} 首歌曲"
-                    : "⚠️ 未获取到数据,请稍后重试";
+                if (songs.Count > 0)
+                {
+                    SongsDataGrid.ItemsSource = songs;
+                    StatusTextBlock.Text = $"✅ 抓取完成!共获取 {songs.Count} 首歌曲";
+                }
+                else
+                {
+                    // 显示友好的空数据提示
+                    SongsDataGrid.ItemsSource = new List<Song>
+                    {
+                        new Song
+                        {
+                            Rank = 0,
+                            Title = "⚠️ 未获取到数据",
+                            Artist = "请稍后重试或检查网络连接",
+                            Album = ""
+                        }
+                    };
+                    StatusTextBlock.Text = "⚠️ 未获取到数据,请稍后重试";
+                }
             }
             catch (Exception ex)
             {
+                // 在 DataGrid 中显示错误信息
+                SongsDataGrid.ItemsSource = new List<Song>
+                {
+                    new Song
+                    {
+                        Rank = 0,
+                        Title = "❌ 抓取失败",
+                        Artist = ex.Message,
+                        Album = ex.GetType().Name
+                    }
+                };
                 StatusTextBlock.Text = $"❌ 发生错误: {ex.Message}";
             }
             finally
