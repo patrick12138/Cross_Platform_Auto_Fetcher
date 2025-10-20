@@ -59,10 +59,16 @@ namespace Cross_Platform_Auto_Fetcher.Services.Crypto
 
         private static string RsaEncrypt(string text, string pubKey, string modulus)
         {
-            // The secret key is reversed as bytes, not as a string.
-            var textBytes = Encoding.UTF8.GetBytes(text).Reverse().ToArray();
+            // This implementation now mirrors the Python script's logic exactly.
+            // 1. Reverse the secret key string.
+            var reversedText = new string(text.Reverse().ToArray());
+            // 2. Get its bytes.
+            var textBytes = Encoding.UTF8.GetBytes(reversedText);
+            // 3. Convert the bytes to a hex string.
+            var hexText = Convert.ToHexString(textBytes);
+            // 4. Parse the hex string into a BigInteger.
+            var biText = BigInteger.Parse("0" + hexText, NumberStyles.HexNumber);
 
-            var biText = new BigInteger(textBytes, isUnsigned: true, isBigEndian: false);
             var biPubKey = BigInteger.Parse(pubKey, NumberStyles.HexNumber);
             var biModulus = BigInteger.Parse(modulus, NumberStyles.HexNumber);
 

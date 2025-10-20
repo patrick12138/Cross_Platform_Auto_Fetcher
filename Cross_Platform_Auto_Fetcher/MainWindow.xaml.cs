@@ -17,13 +17,6 @@ namespace Cross_Platform_Auto_Fetcher
         public MainWindow()
         {
             InitializeComponent();
-            RunTestAndInitialize();
-        }
-
-        private async void RunTestAndInitialize()
-        {
-            await DebugTester.RunNeteaseTest();
-            InitializeData();
         }
 
         private void InitializeData()

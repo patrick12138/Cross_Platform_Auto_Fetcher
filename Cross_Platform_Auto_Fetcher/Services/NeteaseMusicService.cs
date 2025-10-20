@@ -13,11 +13,9 @@ namespace Cross_Platform_Auto_Fetcher.Services
     {
         private static readonly HttpClient _httpClient = new HttpClient();
         private const string PlaylistApiUrl = "https://music.163.com/weapi/v3/playlist/detail";
-        private const string SongDetailApiUrl = "https://music.163.com/weapi/v6/song/detail";
 
         public NeteaseMusicService()
         {
-            // Add required headers to avoid being blocked
             if (_httpClient.DefaultRequestHeaders.UserAgent.Count == 0)
             {
                 _httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
@@ -29,41 +27,22 @@ namespace Cross_Platform_Auto_Fetcher.Services
         {
             try
             {
-                // Step 1: Get track IDs from the playlist
-                var playlistPayload = new { id = topId, offset = 0, total = true, limit = 1000, n = 1000, csrf_token = "" };
-                var encryptedPlaylistParams = NeteaseCrypto.Weapi(playlistPayload);
-                var requestContent = new FormUrlEncodedContent(encryptedPlaylistParams);
+                var payload = new { id = topId, offset = 0, total = true, limit = 1000, n = 1000, csrf_token = "" };
+                var encryptedParams = NeteaseCrypto.Weapi(payload);
+                var requestContent = new FormUrlEncodedContent(encryptedParams);
 
                 var response = await _httpClient.PostAsync(PlaylistApiUrl, requestContent);
                 response.EnsureSuccessStatusCode();
                 var jsonResponse = await response.Content.ReadAsStringAsync();
+
+                // Simplified parsing logic, directly targeting playlist.tracks
                 var playlistResponse = JsonSerializer.Deserialize<NeteasePlaylistResponse>(jsonResponse);
 
-                var trackIds = playlistResponse?.Playlist?.TrackIds?.Take(limit).Select(t => t.Id).ToList();
-                if (trackIds == null || !trackIds.Any())
-                {
-                    return new List<Song>();
-                }
-
-                // Step 2: Get song details from track IDs
-                var songDetailPayload = new
-                {
-                    c = "[" + string.Join(",", trackIds.Select(id => $"{{\"id\":{id}}}")) + "]"
-                };
-                var encryptedSongParams = NeteaseCrypto.Weapi(songDetailPayload);
-                requestContent = new FormUrlEncodedContent(encryptedSongParams);
-
-                response = await _httpClient.PostAsync(SongDetailApiUrl, requestContent);
-                response.EnsureSuccessStatusCode();
-                jsonResponse = await response.Content.ReadAsStringAsync();
-                var songDetailResponse = JsonSerializer.Deserialize<NeteaseSongDetailResponse>(jsonResponse);
-
-                // Step 3: Map to our Song model
                 var songs = new List<Song>();
-                if (songDetailResponse?.Songs != null)
+                if (playlistResponse?.Playlist?.Tracks != null)
                 {
                     int rank = 1;
-                    foreach (var track in songDetailResponse.Songs)
+                    foreach (var track in playlistResponse.Playlist.Tracks.Take(limit))
                     {
                         songs.Add(new Song
                         {
@@ -78,13 +57,14 @@ namespace Cross_Platform_Auto_Fetcher.Services
             }
             catch (Exception ex)
             {
+                // Log to console or a file in a real app
                 Console.WriteLine($"Netease API Error: {ex.Message}");
                 return new List<Song>();
             }
         }
     }
 
-    // Helper classes for deserialization
+    // Adjusted helper classes to match the actual JSON structure from playlist/detail
     public class NeteasePlaylistResponse
     {
         [JsonPropertyName("playlist")]
@@ -93,21 +73,17 @@ namespace Cross_Platform_Auto_Fetcher.Services
 
     public class NeteasePlaylist
     {
-        [JsonPropertyName("trackIds")]
-        public List<NeteaseTrackId> TrackIds { get; set; }
+        // This is the actual list of songs we need
+        [JsonPropertyName("tracks")]
+        public List<NeteaseTrackDetail> Tracks { get; set; }
     }
 
-    public class NeteaseTrackId
-    {
-        [JsonPropertyName("id")]
-        public long Id { get; set; }
-    }
-
-    public class NeteaseSongDetailResponse
-    {
-        [JsonPropertyName("songs")]
-        public List<NeteaseTrackDetail> Songs { get; set; }
-    }
+    // This class is no longer needed as we get full track details at once
+    // public class NeteaseTrackId
+    // {
+    //     [JsonPropertyName("id")]
+    //     public long Id { get; set; }
+    // }
 
     public class NeteaseTrackDetail
     {

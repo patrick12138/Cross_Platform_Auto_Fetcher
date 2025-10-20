@@ -4,7 +4,7 @@
 *.user
 *.userosscache
 *.sln.docstates
-
+.spec-workflow
 # Build results
 [Dd]ebug/
 [Rr]elease/
