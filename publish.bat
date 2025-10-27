@@ -7,7 +7,7 @@ echo.
 
 set PROJECT_DIR=Cross_Platform_Auto_Fetcher
 set OUTPUT_DIR=Release_Package
-set VERSION=1.0.0
+set VERSION=1.1.0
 
 echo [1/4] 清理旧的发布文件...
 if exist "%OUTPUT_DIR%" rmdir /s /q "%OUTPUT_DIR%"
