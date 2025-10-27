@@ -45,7 +45,23 @@ namespace Cross_Platform_Auto_Fetcher
                 var qqResponse = JsonSerializer.Deserialize<QQMusicResponse>(jsonString);
 
                 var songs = new List<Song>();
-                if (qqResponse?.Detail?.Data?.SongInfoList != null)
+                // API数据结构已更新，歌曲信息现在在Data.Data.Song数组中
+                if (qqResponse?.Detail?.Data?.TopListData?.Song != null)
+                {
+                    int rank = 1;
+                    foreach (var songInfo in qqResponse.Detail.Data.TopListData.Song)
+                    {
+                        songs.Add(new Song
+                        {
+                            Rank = rank++,
+                            Title = songInfo.Title,
+                            Artist = songInfo.SingerName,
+                            Album = "" // 新API结构中不包含专辑信息
+                        });
+                    }
+                }
+                // 向后兼容：如果新的数据结构中没有歌曲，尝试旧的SongInfoList字段
+                else if (qqResponse?.Detail?.Data?.SongInfoList != null)
                 {
                     int rank = 1;
                     foreach (var songInfo in qqResponse.Detail.Data.SongInfoList)
@@ -94,10 +110,40 @@ namespace Cross_Platform_Auto_Fetcher
 
     public class Data
     {
+        [JsonPropertyName("data")]
+        public TopListData TopListData { get; set; }
+        
+        // 向后兼容：保留旧的字段
         [JsonPropertyName("songInfoList")]
         public List<SongInfo> SongInfoList { get; set; }
     }
 
+    public class TopListData
+    {
+        [JsonPropertyName("song")]
+        public List<NewSongInfo> Song { get; set; }
+        
+        [JsonPropertyName("title")]
+        public string Title { get; set; }
+    }
+
+    // 新API结构的歌曲信息
+    public class NewSongInfo
+    {
+        [JsonPropertyName("rank")]
+        public int Rank { get; set; }
+        
+        [JsonPropertyName("title")]
+        public string Title { get; set; }
+        
+        [JsonPropertyName("singerName")]
+        public string SingerName { get; set; }
+        
+        [JsonPropertyName("songId")]
+        public long SongId { get; set; }
+    }
+
+    // 旧API结构的歌曲信息（向后兼容）
     public class SongInfo
     {
         [JsonPropertyName("name")]

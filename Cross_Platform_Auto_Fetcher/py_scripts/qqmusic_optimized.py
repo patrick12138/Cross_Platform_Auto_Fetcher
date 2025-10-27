@@ -111,22 +111,34 @@ class QQMusicAPI:
             return None
         
         try:
-            toplist_data = result.get('detail', {}).get('data', {})
-            song_info_list = toplist_data.get('songInfoList', [])
+            # 注意：API返回的数据结构有嵌套的data字段
+            toplist_data = result.get('detail', {}).get('data', {}).get('data', {})
+            # API数据结构已更新，歌曲信息现在在'song'数组中，而不是'songInfoList'
+            song_info_list = toplist_data.get('song', [])
+            # 如果song为空，尝试旧的songInfoList字段（向后兼容）
+            if not song_info_list:
+                song_info_list = toplist_data.get('songInfoList', [])
+            
             title = toplist_data.get('title', '未知排行榜')
             
             songs = []
             for idx, song in enumerate(song_info_list, 1):
                 try:
-                    singer_name = ' & '.join([s.get('name', '未知歌手') for s in song.get('singer', [])])
-                    album_name = self.html_decode(song.get('album', {}).get('name', '未知专辑'))
+                    # 新数据结构中歌手信息在singerName字段中，而不是singer数组
+                    singer_name = song.get('singerName', '未知歌手')
+                    # 如果singerName不存在，尝试从singer数组中获取（向后兼容）
+                    if not singer_name and song.get('singer'):
+                        singer_name = ' & '.join([s.get('name', '未知歌手') for s in song.get('singer', [])])
+                    
+                    # 新数据结构中没有专辑信息，使用空字符串
+                    album_name = ''  # 新API结构中不包含专辑信息
                     
                     songs.append({
                         '排名': idx,
-                        '歌曲名': self.html_decode(song.get('name', '')),
+                        '歌曲名': self.html_decode(song.get('title', '')),  # 新API使用title字段
                         '歌手': self.html_decode(singer_name),
                         '专辑': album_name,
-                        '歌曲ID': song.get('mid', '')
+                        '歌曲ID': song.get('songId', '')  # 新API使用songId字段
                     })
                 except Exception as e:
                     print(f"解析歌曲信息时出错 (第{idx}首): {e}")
