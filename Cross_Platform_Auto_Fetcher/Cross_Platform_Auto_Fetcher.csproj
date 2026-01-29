@@ -12,7 +12,7 @@
     <Product>跨平台音乐榜单抓取工具</Product>
     <Company>MUSICBOX</Company>
     <Version>1.1.0</Version>
-    <Description>支持QQ音乐、酷狗音乐、网易云音乐的榜单数据抓取工具</Description>
+    <Description>一款基于 .NET 6 WPF 开发的音乐榜单数据抓取工具。支持一键获取 QQ音乐、网易云音乐、酷狗音乐的实时榜单（热歌、新歌、飙升榜）并导出为 CSV 格式。</Description>
 
     <!-- 发布配置 -->
     <PublishSingleFile>true</PublishSingleFile>
