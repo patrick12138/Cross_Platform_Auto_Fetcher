@@ -1,4 +1,3 @@
-using Cross_Platform_Auto_Fetcher.Services.Crypto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +11,8 @@ namespace Cross_Platform_Auto_Fetcher.Services
 {
     public class NeteaseMusicService : MusicServiceBase
     {
-        private const string PlaylistApiUrl = "https://music.163.com/weapi/v3/playlist/detail";
+        // 使用简单的 GET API，无需加密，且经测试稳定有效
+        private const string PlaylistApiUrl = "http://music.163.com/api/playlist/detail";
 
         public override async Task<List<Song>> GetTopListAsync(string topId, int limit = 100)
         {
@@ -20,28 +20,15 @@ namespace Cross_Platform_Auto_Fetcher.Services
 
             try
             {
-                FileLogger.Log($"[Netease] 请求榜单 ID: {topId}");
+                FileLogger.Log($"[Netease] 请求榜单 ID: {topId} (使用 GET API)");
 
-                var payload = new
-                {
-                    id = topId.ToString(),
-                    offset = 0,
-                    total = true,
-                    limit = 1000,
-                    n = 1000,
-                    csrf_token = ""
-                };
+                // 构建带参数的 URL
+                var url = $"{PlaylistApiUrl}?id={topId}";
 
-                var encryptedParams = NeteaseCrypto.Weapi(payload);
-                var requestContent = new FormUrlEncodedContent(encryptedParams);
-
-                var request = new HttpRequestMessage(HttpMethod.Post, PlaylistApiUrl)
-                {
-                    Content = requestContent
-                };
+                var request = new HttpRequestMessage(HttpMethod.Get, url);
 
                 request.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
-                request.Headers.Add("Referer", "https://music.163.com/");
+                request.Headers.Add("Referer", "http://music.163.com/");
 
                 var response = await httpClient.SendAsync(request);
                 var jsonResponse = await response.Content.ReadAsStringAsync();
@@ -52,14 +39,21 @@ namespace Cross_Platform_Auto_Fetcher.Services
                     return new List<Song>();
                 }
 
-                var playlistResponse = JsonSerializer.Deserialize<NeteasePlaylistResponse>(jsonResponse);
+                var apiResponse = JsonSerializer.Deserialize<NeteaseApiResponse>(jsonResponse);
+
+                if (apiResponse == null || apiResponse.Code != 200)
+                {
+                    FileLogger.Log($"[Netease] API 返回错误代码: {apiResponse?.Code}");
+                    return new List<Song>();
+                }
 
                 var songs = new List<Song>();
-                if (playlistResponse?.Playlist?.Tracks != null && playlistResponse.Playlist.Tracks.Count > 0)
+                // 注意：旧接口返回的是 result 字段，而不是 playlist 字段
+                if (apiResponse.Result?.Tracks != null && apiResponse.Result.Tracks.Count > 0)
                 {
-                    FileLogger.Log($"[Netease] 成功获取 {playlistResponse.Playlist.Tracks.Count} 首歌曲");
+                    FileLogger.Log($"[Netease] 成功获取 {apiResponse.Result.Tracks.Count} 首歌曲");
                     int rank = 1;
-                    foreach (var track in playlistResponse.Playlist.Tracks.Take(limit))
+                    foreach (var track in apiResponse.Result.Tracks.Take(limit))
                     {
                         if (track?.Name != null && track.Artists != null && track.Album != null)
                         {
@@ -92,13 +86,18 @@ namespace Cross_Platform_Auto_Fetcher.Services
         }
     }
 
-    public class NeteasePlaylistResponse
+    // 根响应对象
+    public class NeteaseApiResponse
     {
-        [JsonPropertyName("playlist")]
-        public NeteasePlaylist Playlist { get; set; }
+        [JsonPropertyName("code")]
+        public int Code { get; set; }
+
+        [JsonPropertyName("result")]
+        public NeteasePlaylistResult Result { get; set; }
     }
 
-    public class NeteasePlaylist
+    // 播放列表结果对象
+    public class NeteasePlaylistResult
     {
         [JsonPropertyName("tracks")]
         public List<NeteaseTrackDetail> Tracks { get; set; }
@@ -109,10 +108,12 @@ namespace Cross_Platform_Auto_Fetcher.Services
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
-        [JsonPropertyName("ar")]
+        // GET API 使用 "artists" 而不是 "ar"
+        [JsonPropertyName("artists")]
         public List<NeteaseArtist> Artists { get; set; }
 
-        [JsonPropertyName("al")]
+        // GET API 使用 "album" 而不是 "al"
+        [JsonPropertyName("album")]
         public NeteaseAlbum Album { get; set; }
     }
 
