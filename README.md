@@ -1,6 +1,6 @@
-﻿# Cross Platform Auto Fetcher
+# Cross Platform Auto Fetcher
 
-[绠€浣撲腑鏂嘳(README.zh-CN.md)
+[简体中文](README.zh-CN.md)
 
 ![Platform](https://img.shields.io/badge/platform-Windows-blue)
 ![.NET](https://img.shields.io/badge/.NET-6.0-purple)
@@ -55,16 +55,15 @@ Build output:
 
 ```text
 CrossPlatformAutoFetcher/
-鈹溾攢 CrossPlatformAutoFetcher/         # Main WPF project
-鈹? 鈹溾攢 Services/                          # Platform service implementations
-鈹? 鈹溾攢 Models/                            # Shared data models
-鈹? 鈹溾攢 py_scripts/                        # Python API debug/prototype scripts
-鈹? 鈹斺攢 MainWindow.xaml                    # Main UI
-鈹溾攢 publish.bat                           # Local publish script
-鈹斺攢 CLAUDE.md                             # Additional project notes
+|- CrossPlatformAutoFetcher/         # Main WPF project
+|  |- Services/                      # Platform service implementations
+|  |- Models/                        # Shared data models
+|  |- py_scripts/                    # Python API debug/prototype scripts
+|  `- MainWindow.xaml                # Main UI
+|- publish.bat                       # Local publish script
+`- CLAUDE.md                         # Additional project notes
 ```
 
 ## License
 
 MIT
-
