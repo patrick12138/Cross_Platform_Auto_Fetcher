@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-namespace Cross_Platform_Auto_Fetcher.Services.Crypto
+namespace CrossPlatformAutoFetcher.Services.Crypto
 {
     public static class NeteaseCrypto
     {

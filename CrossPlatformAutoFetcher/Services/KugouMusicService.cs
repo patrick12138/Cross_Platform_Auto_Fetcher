@@ -1,13 +1,13 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Cross_Platform_Auto_Fetcher.Services;
+using CrossPlatformAutoFetcher.Services;
 
-namespace Cross_Platform_Auto_Fetcher
+namespace CrossPlatformAutoFetcher
 {
     public class KugouMusicService : MusicServiceBase
     {
@@ -41,7 +41,7 @@ namespace Cross_Platform_Auto_Fetcher
                     if (rank > limit) break;
 
                     var parts = kugouSong.FileName.Split(" - ", 2, StringSplitOptions.RemoveEmptyEntries);
-                    var artist = parts.Length > 1 ? parts[0].Trim() : "未知歌手";
+                    var artist = parts.Length > 1 ? parts[0].Trim() : "鏈煡姝屾墜";
                     var title = parts.Length > 1 ? parts[1].Trim() : parts[0].Trim();
 
                     songs.Add(new Song
@@ -71,3 +71,4 @@ namespace Cross_Platform_Auto_Fetcher
         public string AlbumName { get; set; }
     }
 }
+

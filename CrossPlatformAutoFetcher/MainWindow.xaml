@@ -1,9 +1,9 @@
-<Window x:Class="Cross_Platform_Auto_Fetcher.MainWindow"
+﻿<Window x:Class="CrossPlatformAutoFetcher.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Cross_Platform_Auto_Fetcher"
+        xmlns:local="clr-namespace:CrossPlatformAutoFetcher"
         mc:Ignorable="d"
         Title="跨平台音乐榜单抓取工具"
         Height="600" Width="850">
@@ -24,7 +24,7 @@
 
             <Button x:Name="FetchButton" Content="抓取数据" Width="100" Margin="20,0,0,0" Click="FetchButton_Click"/>
             <Button x:Name="ExportButton" Content="导出" Width="80" Margin="10,0,0,0" Click="ExportButton_Click"/>
-            <Button x:Name="ExportAllButton" Content="一键导出所有平台的榜单" Width="140" Margin="10,0,0,0" Click="ExportAllButton_Click"/>
+            <Button x:Name="ExportAllButton" Content="一键导出所有平台榜单" Width="160" Margin="10,0,0,0" Click="ExportAllButton_Click"/>
         </StackPanel>
 
         <DataGrid x:Name="SongsDataGrid" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,35,0,5" Grid.RowSpan="3">

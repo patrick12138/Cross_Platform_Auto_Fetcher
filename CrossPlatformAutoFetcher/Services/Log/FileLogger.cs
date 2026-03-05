@@ -1,7 +1,7 @@
-using System;
+﻿using System;
 using System.IO;
 
-namespace Cross_Platform_Auto_Fetcher.Services.Log
+namespace CrossPlatformAutoFetcher.Services.Log
 {
     public static class FileLogger
     {
@@ -33,4 +33,5 @@ namespace Cross_Platform_Auto_Fetcher.Services.Log
         }
     }
 }
+
 

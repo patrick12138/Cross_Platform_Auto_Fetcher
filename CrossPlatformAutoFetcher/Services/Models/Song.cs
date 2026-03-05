@@ -1,4 +1,4 @@
-namespace Cross_Platform_Auto_Fetcher
+﻿namespace CrossPlatformAutoFetcher
 {
     public class Song
     {
@@ -8,3 +8,4 @@ namespace Cross_Platform_Auto_Fetcher
         public string Album { get; set; }
     }
 }
+

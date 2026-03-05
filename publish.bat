@@ -1,20 +1,20 @@
-@echo off
+﻿@echo off
 chcp 65001 > nul
 echo ========================================
-echo   跨平台音乐榜单抓取工具 - 发布脚本
+echo   璺ㄥ钩鍙伴煶涔愭鍗曟姄鍙栧伐鍏?- 鍙戝竷鑴氭湰
 echo ========================================
 echo.
 
-set PROJECT_DIR=Cross_Platform_Auto_Fetcher
+set PROJECT_DIR=CrossPlatformAutoFetcher
 set OUTPUT_DIR=Release_Package
 set VERSION=1.1.0
 
-echo [1/4] 清理旧的发布文件...
+echo [1/4] 娓呯悊鏃х殑鍙戝竷鏂囦欢...
 if exist "%OUTPUT_DIR%" rmdir /s /q "%OUTPUT_DIR%"
 mkdir "%OUTPUT_DIR%"
 
-echo [2/4] 发布 Windows x64 单文件版本...
-dotnet publish "%PROJECT_DIR%\Cross_Platform_Auto_Fetcher.csproj" ^
+echo [2/4] 鍙戝竷 Windows x64 鍗曟枃浠剁増鏈?..
+dotnet publish "%PROJECT_DIR%\CrossPlatformAutoFetcher.csproj" ^
     --configuration Release ^
     --runtime win-x64 ^
     --self-contained true ^
@@ -26,34 +26,35 @@ dotnet publish "%PROJECT_DIR%\Cross_Platform_Auto_Fetcher.csproj" ^
 
 if errorlevel 1 (
     echo.
-    echo ❌ 发布失败!
+    echo 鉂?鍙戝竷澶辫触!
     pause
     exit /b 1
 )
 
-echo [3/4] 整理发布文件...
-move "%OUTPUT_DIR%\temp\Cross_Platform_Auto_Fetcher.exe" "%OUTPUT_DIR%\"
+echo [3/4] 鏁寸悊鍙戝竷鏂囦欢...
+move "%OUTPUT_DIR%\temp\CrossPlatformAutoFetcher.exe" "%OUTPUT_DIR%\"
 rmdir /s /q "%OUTPUT_DIR%\temp"
 
-echo [4/4] 创建版本信息...
-echo 跨平台音乐榜单抓取工具 v%VERSION% > "%OUTPUT_DIR%\版本信息.txt"
-echo. >> "%OUTPUT_DIR%\版本信息.txt"
-echo 发布日期: %date% %time% >> "%OUTPUT_DIR%\版本信息.txt"
-echo. >> "%OUTPUT_DIR%\版本信息.txt"
-echo 支持平台: >> "%OUTPUT_DIR%\版本信息.txt"
-echo - QQ音乐 >> "%OUTPUT_DIR%\版本信息.txt"
-echo - 酷狗音乐 >> "%OUTPUT_DIR%\版本信息.txt"
-echo - 网易云音乐 >> "%OUTPUT_DIR%\版本信息.txt"
+echo [4/4] 鍒涘缓鐗堟湰淇℃伅...
+echo 璺ㄥ钩鍙伴煶涔愭鍗曟姄鍙栧伐鍏?v%VERSION% > "%OUTPUT_DIR%\鐗堟湰淇℃伅.txt"
+echo. >> "%OUTPUT_DIR%\鐗堟湰淇℃伅.txt"
+echo 鍙戝竷鏃ユ湡: %date% %time% >> "%OUTPUT_DIR%\鐗堟湰淇℃伅.txt"
+echo. >> "%OUTPUT_DIR%\鐗堟湰淇℃伅.txt"
+echo 鏀寔骞冲彴: >> "%OUTPUT_DIR%\鐗堟湰淇℃伅.txt"
+echo - QQ闊充箰 >> "%OUTPUT_DIR%\鐗堟湰淇℃伅.txt"
+echo - 閰风嫍闊充箰 >> "%OUTPUT_DIR%\鐗堟湰淇℃伅.txt"
+echo - 缃戞槗浜戦煶涔?>> "%OUTPUT_DIR%\鐗堟湰淇℃伅.txt"
 
 echo.
 echo ========================================
-echo ✅ 发布完成!
+echo 鉁?鍙戝竷瀹屾垚!
 echo ========================================
 echo.
-echo 发布文件位置: %cd%\%OUTPUT_DIR%
-echo 可执行文件: Cross_Platform_Auto_Fetcher.exe
+echo 鍙戝竷鏂囦欢浣嶇疆: %cd%\%OUTPUT_DIR%
+echo 鍙墽琛屾枃浠? CrossPlatformAutoFetcher.exe
 echo.
-echo 文件大小:
-dir "%OUTPUT_DIR%\Cross_Platform_Auto_Fetcher.exe" | find "Cross_Platform_Auto_Fetcher.exe"
+echo 鏂囦欢澶у皬:
+dir "%OUTPUT_DIR%\CrossPlatformAutoFetcher.exe" | find "CrossPlatformAutoFetcher.exe"
 echo.
 pause
+

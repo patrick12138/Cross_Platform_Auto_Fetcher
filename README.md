@@ -1,6 +1,6 @@
-# Cross Platform Auto Fetcher
+﻿# Cross Platform Auto Fetcher
 
-[简体中文](README.zh-CN.md)
+[绠€浣撲腑鏂嘳(README.zh-CN.md)
 
 ![Platform](https://img.shields.io/badge/platform-Windows-blue)
 ![.NET](https://img.shields.io/badge/.NET-6.0-purple)
@@ -15,7 +15,7 @@ It fetches chart data from multiple music platforms (QQ Music, NetEase Cloud Mus
 - Multiple chart types, including hot/new/rising style rankings.
 - CSV export in UTF-8 encoding.
 - Built-in retry and logging support for more stable fetch behavior.
-- Python prototype scripts in `Cross_Platform_Auto_Fetcher/py_scripts/` for API debugging and validation.
+- Python prototype scripts in `CrossPlatformAutoFetcher/py_scripts/` for API debugging and validation.
 
 ## Tech Stack
 
@@ -37,9 +37,9 @@ It fetches chart data from multiple music platforms (QQ Music, NetEase Cloud Mus
 ### Run from Source
 
 ```bash
-git clone https://github.com/patrick12138/Cross_Platform_Auto_Fetcher.git
-cd Cross_Platform_Auto_Fetcher
-dotnet run --project Cross_Platform_Auto_Fetcher/Cross_Platform_Auto_Fetcher.csproj
+git clone https://github.com/patrick12138/CrossPlatformAutoFetcher.git
+cd CrossPlatformAutoFetcher
+dotnet run --project CrossPlatformAutoFetcher/CrossPlatformAutoFetcher.csproj
 ```
 
 ### Publish
@@ -49,21 +49,22 @@ dotnet run --project Cross_Platform_Auto_Fetcher/Cross_Platform_Auto_Fetcher.csp
 ```
 
 Build output:
-- `Release_Package/Cross_Platform_Auto_Fetcher.exe`
+- `Release_Package/CrossPlatformAutoFetcher.exe`
 
 ## Project Structure
 
 ```text
-Cross_Platform_Auto_Fetcher/
-├─ Cross_Platform_Auto_Fetcher/         # Main WPF project
-│  ├─ Services/                          # Platform service implementations
-│  ├─ Models/                            # Shared data models
-│  ├─ py_scripts/                        # Python API debug/prototype scripts
-│  └─ MainWindow.xaml                    # Main UI
-├─ publish.bat                           # Local publish script
-└─ CLAUDE.md                             # Additional project notes
+CrossPlatformAutoFetcher/
+鈹溾攢 CrossPlatformAutoFetcher/         # Main WPF project
+鈹? 鈹溾攢 Services/                          # Platform service implementations
+鈹? 鈹溾攢 Models/                            # Shared data models
+鈹? 鈹溾攢 py_scripts/                        # Python API debug/prototype scripts
+鈹? 鈹斺攢 MainWindow.xaml                    # Main UI
+鈹溾攢 publish.bat                           # Local publish script
+鈹斺攢 CLAUDE.md                             # Additional project notes
 ```
 
 ## License
 
 MIT
+

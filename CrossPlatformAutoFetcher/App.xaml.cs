@@ -2,7 +2,7 @@
 using System.Data;
 using System.Windows;
 
-namespace Cross_Platform_Auto_Fetcher
+namespace CrossPlatformAutoFetcher
 {
     /// <summary>
     /// Interaction logic for App.xaml
@@ -12,3 +12,4 @@ namespace Cross_Platform_Auto_Fetcher
     }
 
 }
+

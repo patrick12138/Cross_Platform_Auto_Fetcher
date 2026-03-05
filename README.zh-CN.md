@@ -1,69 +1,53 @@
-# Cross Platform Auto Fetcher
+﻿# Cross Platform Auto Fetcher
 
 [English](README.md)
 
-![平台](https://img.shields.io/badge/平台-Windows-blue)
+![骞冲彴](https://img.shields.io/badge/骞冲彴-Windows-blue)
 ![.NET](https://img.shields.io/badge/.NET-6.0-purple)
-![许可证](https://img.shields.io/badge/license-MIT-green)
+![璁稿彲璇乚(https://img.shields.io/badge/license-MIT-green)
 
-Cross Platform Auto Fetcher 是一个基于 .NET 6 的 WPF 桌面应用。
-用于抓取多个音乐平台（QQ 音乐、网易云音乐、酷狗音乐）的榜单数据，并导出为 CSV 文件。
+Cross Platform Auto Fetcher 鏄竴涓熀浜?.NET 6 鐨?WPF 妗岄潰搴旂敤銆?鐢ㄤ簬鎶撳彇澶氫釜闊充箰骞冲彴锛圦Q 闊充箰銆佺綉鏄撲簯闊充箰銆侀叿鐙楅煶涔愶級鐨勬鍗曟暟鎹紝骞跺鍑轰负 CSV 鏂囦欢銆?
+## 鍔熻兘鐗规€?
+- 鏀寔 QQ 闊充箰銆佺綉鏄撲簯闊充箰銆侀叿鐙楅煶涔愪笁骞冲彴姒滃崟鎶撳彇銆?- 鏀寔澶氱被姒滃崟锛堝鐑瓕姒溿€佹柊姝屾銆侀鍗囨绛夛級銆?- 鏀寔 UTF-8 缂栫爜鐨?CSV 瀵煎嚭銆?- 鍐呯疆閲嶈瘯涓庢棩蹇楁満鍒讹紝鎻愬崌鎶撳彇绋冲畾鎬с€?- 鎻愪緵 `CrossPlatformAutoFetcher/py_scripts/` 涓嬬殑 Python 鍘熷瀷鑴氭湰锛屼究浜庢帴鍙ｈ皟璇曚笌楠岃瘉銆?
+## 鎶€鏈爤
 
-## 功能特性
+- .NET 6锛坄net6.0-windows`锛?- WPF 妗岄潰鐣岄潰
+- 鍒嗗眰鏈嶅姟缁撴瀯锛?  - `MainWindow` 璐熻矗鐣岄潰浜や簰涓庢祦绋嬬紪鎺?  - `IMusicDataService` + `MusicServiceBase` 鎻愪緵缁熶竴鏈嶅姟鎶借薄
+  - `QQMusicService`銆乣NeteaseMusicService`銆乣KugouMusicService` 璐熻矗骞冲彴瀹炵幇
 
-- 支持 QQ 音乐、网易云音乐、酷狗音乐三平台榜单抓取。
-- 支持多类榜单（如热歌榜、新歌榜、飙升榜等）。
-- 支持 UTF-8 编码的 CSV 导出。
-- 内置重试与日志机制，提升抓取稳定性。
-- 提供 `Cross_Platform_Auto_Fetcher/py_scripts/` 下的 Python 原型脚本，便于接口调试与验证。
+## 蹇€熷紑濮?
+### 鐜瑕佹眰
 
-## 技术栈
+- Windows 10/11锛坸64锛?- .NET 6 SDK锛堝紑鍙戞椂锛?- .NET 6 Runtime锛堣繍琛屽彂甯冨寘鏃讹級
 
-- .NET 6（`net6.0-windows`）
-- WPF 桌面界面
-- 分层服务结构：
-  - `MainWindow` 负责界面交互与流程编排
-  - `IMusicDataService` + `MusicServiceBase` 提供统一服务抽象
-  - `QQMusicService`、`NeteaseMusicService`、`KugouMusicService` 负责平台实现
-
-## 快速开始
-
-### 环境要求
-
-- Windows 10/11（x64）
-- .NET 6 SDK（开发时）
-- .NET 6 Runtime（运行发布包时）
-
-### 源码运行
+### 婧愮爜杩愯
 
 ```bash
-git clone https://github.com/patrick12138/Cross_Platform_Auto_Fetcher.git
-cd Cross_Platform_Auto_Fetcher
-dotnet run --project Cross_Platform_Auto_Fetcher/Cross_Platform_Auto_Fetcher.csproj
+git clone https://github.com/patrick12138/CrossPlatformAutoFetcher.git
+cd CrossPlatformAutoFetcher
+dotnet run --project CrossPlatformAutoFetcher/CrossPlatformAutoFetcher.csproj
 ```
 
-### 发布
+### 鍙戝竷
 
 ```bash
 ./publish.bat
 ```
 
-输出路径：
-- `Release_Package/Cross_Platform_Auto_Fetcher.exe`
+杈撳嚭璺緞锛?- `Release_Package/CrossPlatformAutoFetcher.exe`
 
-## 项目结构
+## 椤圭洰缁撴瀯
 
 ```text
-Cross_Platform_Auto_Fetcher/
-├─ Cross_Platform_Auto_Fetcher/         # 主 WPF 工程
-│  ├─ Services/                          # 平台服务实现
-│  ├─ Models/                            # 共享数据模型
-│  ├─ py_scripts/                        # Python 接口调试/原型脚本
-│  └─ MainWindow.xaml                    # 主界面
-├─ publish.bat                           # 本地发布脚本
-└─ CLAUDE.md                             # 项目补充说明
+CrossPlatformAutoFetcher/
+鈹溾攢 CrossPlatformAutoFetcher/         # 涓?WPF 宸ョ▼
+鈹? 鈹溾攢 Services/                          # 骞冲彴鏈嶅姟瀹炵幇
+鈹? 鈹溾攢 Models/                            # 鍏变韩鏁版嵁妯″瀷
+鈹? 鈹溾攢 py_scripts/                        # Python 鎺ュ彛璋冭瘯/鍘熷瀷鑴氭湰
+鈹? 鈹斺攢 MainWindow.xaml                    # 涓荤晫闈?鈹溾攢 publish.bat                           # 鏈湴鍙戝竷鑴氭湰
+鈹斺攢 CLAUDE.md                             # 椤圭洰琛ュ厖璇存槑
 ```
 
-## 许可证
-
+## 璁稿彲璇?
 MIT
+
